@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caress the Stick</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            margin-top: 20px;
+            color: #333;
+        }
+        #game-container {
+            margin: 50px auto;
+            width: 300px;
+            height: 600px;
+            position: relative;
+            background-color: #dcdcdc;
+            border: 2px solid #333;
+            border-radius: 10px;
+        }
+        #stick {
+            width: 50px;
+            height: 300px;
+            background-color: #8b4513;
+            position: absolute;
+            top: 150px;
+            left: 125px;
+            border-radius: 10px;
+        }
+        #stick-tip {
+            width: 50px;
+            height: 20px;
+            background-color: #ff69b4; /* Pink tip */
+            position: absolute;
+            bottom: -20px; /* Position at the bottom of the stick */
+            left: 0;
+            border-radius: 10px;
+        }
+        #score {
+            margin-top: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+        #stress-meter {
+            width: 100%;
+            height: 20px;
+            background-color: #ddd;
+            margin: 20px 0;
+            border: 1px solid #333;
+            border-radius: 5px;
+            position: relative;
+        }
+        #stress {
+            height: 100%;
+            width: 0;
+            background-color: #ff0000;
+            border-radius: 5px;
+        }
+        #game-over {
+            display: none;
+            font-size: 32px;
+            color: red;
+            margin-top: 20px;
+        }
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            border-radius: 50%;
+            animation: floatUp 2s ease-out forwards;
+        }
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-150px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Caress the Stick</h1>
+    <div id="game-container">
+        <div id="stick">
+            <div id="stick-tip"></div>
+        </div>
+    </div>
+    <div id="score">Score: 0</div>
+    <div id="stress-meter">
+        <div id="stress"></div>
+    </div>
+    <div id="game-over">Game Over!</div>
+    <script>
+        let score = 0;
+        let stressLevel = 0;
+        let isGameOver = false;
+
+        const stick = document.getElementById('stick');
+        const scoreDisplay = document.getElementById('score');
+        const stressBar = document.getElementById('stress');
+        const gameOverDisplay = document.getElementById('game-over');
+        const gameContainer = document.getElementById('game-container');
+
+        // Function to increase the score
+        function increaseScore() {
+            if (isGameOver) return;
+
+            score++;
+            scoreDisplay.innerText = `Score: ${score}`;
+            stressLevel = Math.max(0, stressLevel - 5); // Reduce stress gently
+            updateStressBar();
+
+            // Trigger white particles effect when score reaches 100
+            if (score === 100) {
+                releaseParticles();
+            }
+        }
+
+        // Function to increase stress
+        function increaseStress() {
+            if (isGameOver) return;
+
+            stressLevel += 10;
+            updateStressBar();
+
+            if (stressLevel >= 100) {
+                endGame();
+            }
+        }
+
+        // Update the stress meter
+        function updateStressBar() {
+            stressBar.style.width = `${stressLevel}%`;
+        }
+
+        // End the game
+        function endGame() {
+            isGameOver = true;
+            gameOverDisplay.style.display = 'block';
+        }
+
+        // Create white particle effect
+        function releaseParticles() {
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.left = `${125 + Math.random() * 50}px`; // Random horizontal position
+                particle.style.top = '150px'; // Start at the top of the stick
+                gameContainer.appendChild(particle);
+
+                // Remove particle after animation
+                setTimeout(() => {
+                    particle.remove();
+                }, 2000);
+            }
+        }
+
+        // Add event listeners to the stick
+        stick.addEventListener('mousedown', () => {
+            increaseScore();
+        });
+
+        stick.addEventListener('mouseup', () => {
+            increaseStress();
+        });
+
+        // Reset stress if the player moves their mouse gently
+        stick.addEventListener('mousemove', () => {
+            if (!isGameOver) {
+                stressLevel = Math.max(0, stressLevel - 1);
+                updateStressBar();
+            }
+        });
+    </script>
+</body>
+</html>
